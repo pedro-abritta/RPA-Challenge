@@ -1,0 +1,59 @@
+·#defVar --name dataTable --type DataTable
+defVar --name peopleCount --type Numeric
+defVar --name firstName --type String
+defVar --name lastName --type String
+defVar --name companyName --type String
+defVar --name roleInCompany --type String
+defVar --name address --type String
+defVar --name email --type String
+defVar --name phoneNumber --type String
+defVar --name pageHTML --type String
+defVar --name fieldName --type String
+defVar --name count --type Numeric
+defVar --name total --type Numeric
+defVar --name fieldID --type String
+defVar --name InstanceExcel --type Excel
+defVar --name round --type Numeric
+excelOpen --file "C:\\Users\\reisa\\Desktop\\challenge.xlsx" InstanceExcel=value
+excelGetTable --file ${InstanceExcel} --getfirstsheet  --fromrow 1 --fromcolumn 1 --torow 11 --hasheaders  dataTable=value
+//filterTable --where "( )" --dataTable ${dataTable}
+webStart --name browserInstance --type "Chrome"
+webNavigate --url "https://rpachallenge.com/"
+webClick --selector "XPath" --xpath "/html/body/app-root/div[2]/app-rpa1/div/div[1]/div[6]/button"
+webGetFieldHTML --selector "XPath" --xpath "/html/body/app-root/div[2]/app-rpa1/div/div[2]" pageHTML=value
+countTextOccurrences --text "${pageHTML}" --useRegex  --regexPattern "ng-reflect-name=\"(.*?)\".*?id=\"(.*?)\"" --regexOptions "0" --startindex 1 total=value
+for --variable ${peopleCount} --from 1 --to ${dataTable.Rows} --step 1
+	webGetFieldHTML --selector "XPath" --xpath "/html/body/app-root/div[2]/app-rpa1/div/div[2]" pageHTML=value
+	mapTableRow --dataTable ${dataTable} --row ${peopleCount} --mappings "number=1=${firstName},number=2=${lastName},number=3=${companyName},number=4=${roleInCompany},number=5=${address},number=6=${email},number=7=${phoneNumber}"
+	goSub --label gettingFieldsWithRegex
+next
+webClose --name browserInstance --leavebrowseropen 
+beginSub --name gettingFieldsWithRegex
+for --variable ${count} --from 1 --to ${total} --step 1
+	getRegex --text "${pageHTML}" --regexPattern "ng-reflect-name=\"(.*?)\".*?id=\"(.*?)\"" --regexOptions "Multiline" --groupnumber 1 --getbyindex  --occurrenceindex ${count} fieldName=value
+	if --left "${fieldName}" --operator "Contains" --right FirstName
+		getRegex --text "${pageHTML}" --regexPattern "ng-reflect-name=\"(.*?)\".*?id=\"(.*?)\"" --regexOptions "Multiline" --groupnumber 2 --getbyindex  --occurrenceindex ${count} fieldID=value
+		webSet --value "${firstName}" --selector "Id" --id "${fieldID}"
+	elseIf --left "${fieldName}" --operator "Contains" --right LastName
+		getRegex --text "${pageHTML}" --regexPattern "ng-reflect-name=\"(.*?)\".*?id=\"(.*?)\"" --regexOptions "Multiline" --groupnumber 2 --getbyindex  --occurrenceindex ${count} fieldID=value
+		webSet --value "${lastName}" --selector "Id" --id "${fieldID}"
+	elseIf --left "${fieldName}" --operator "Contains" --right CompanyName
+		getRegex --text "${pageHTML}" --regexPattern "ng-reflect-name=\"(.*?)\".*?id=\"(.*?)\"" --regexOptions "Multiline" --groupnumber 2 --getbyindex  --occurrenceindex ${count} fieldID=value
+		webSet --value "${companyName}" --selector "Id" --id "${fieldID}"
+	elseIf --left "${fieldName}" --operator "Contains" --right Role
+		getRegex --text "${pageHTML}" --regexPattern "ng-reflect-name=\"(.*?)\".*?id=\"(.*?)\"" --regexOptions "Multiline" --groupnumber 2 --getbyindex  --occurrenceindex ${count} fieldID=value
+		webSet --value "${roleInCompany}" --selector "Id" --id "${fieldID}"
+	elseIf --left "${fieldName}" --operator "Contains" --right Address
+		getRegex --text "${pageHTML}" --regexPattern "ng-reflect-name=\"(.*?)\".*?id=\"(.*?)\"" --regexOptions "Multiline" --groupnumber 2 --getbyindex  --occurrenceindex ${count} fieldID=value
+		webSet --value "${address}" --selector "Id" --id "${fieldID}"
+	elseIf --left "${fieldName}" --operator "Contains" --right Email
+		getRegex --text "${pageHTML}" --regexPattern "ng-reflect-name=\"(.*?)\".*?id=\"(.*?)\"" --regexOptions "Multiline" --groupnumber 2 --getbyindex  --occurrenceindex ${count} fieldID=value
+		webSet --value "${email}" --selector "Id" --id "${fieldID}"
+	elseIf --left "${fieldName}" --operator "Contains" --right Phone
+		getRegex --text "${pageHTML}" --regexPattern "ng-reflect-name=\"(.*?)\".*?id=\"(.*?)\"" --regexOptions "Multiline" --groupnumber 2 --getbyindex  --occurrenceindex ${count} fieldID=value
+		webSet --value "${phoneNumber}" --selector "Id" --id "${fieldID}"
+	else
+	endIf
+next
+webClick --selector "XPath" --xpath "/html/body/app-root/div[2]/app-rpa1/div/div[2]/form/input"
+endSub*21.0.6.0
